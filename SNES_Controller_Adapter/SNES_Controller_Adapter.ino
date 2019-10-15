@@ -1,234 +1,431 @@
- /* SNES Controller Descrete Output Adapter
- * ------------------ 
- * This sketch is designed to decode SNES gamepad
- * signals into descrete outputs for use with arcade 
- * PCBs. 
- * 
- * Appollogies for the sloppy code. It took a lot of trial and error
- * to get everything working properly. There is probably redundant/vestigial
- * code in here left over from the software's original purpose. 
- * 
- * Arthrimus June 10th 2019
- *
- *
- * Based on SNES-controller-Software by Brian Hillman
- *
- *https://github.com/BrianHillman/SNES-controller-Software
-*/
- 
-// Controller buttons
-// (based on button-to-clock pulse assignment)
-#define SNES_B        32768  // 1000000000000000
-#define SNES_Y        16384  // 0100000000000000
-#define SNES_SELECT   8192   // 0010000000000000
-#define SNES_START    4096   // 0001000000000000
-#define SNES_UP       2048   // 0000100000000000
-#define SNES_DOWN     1024   // 0000010000000000
-#define SNES_LEFT      512   // 0000001000000000
-#define SNES_RIGHT     256   // 0000000100000000
-#define SNES_A         128   // 0000000010000000
-#define SNES_X          64   // 0000000001000000
-#define SNES_L          32   // 0000000000100000
-#define SNES_R          16   // 0000000000010000
- 
-// Arduino pins vs. SNES controller pins
-// (default is latch 2, clock 3, data 4)
-//int LatchPin  = 7; // Latch
-//int ClockPin  = 5; // Clock
-//int DataPin   = 6; // Serial Data
 
-
-int LatchPin  = 18; // Latch
-int ClockPin  = 15; // Clock
-int DataPin   = 19; // Serial Data
-int numNs = 0;
-int numNs1 = 0;
-int UP = 1; // These choose the pins for the button outputs. (Change these-
-int DN = 4; // if you wish to remap the buttons.)
-int LT = 5;
-int RT = 6;
-int B = 10;
-int A = 13;
-int R = 12;
-int Y = 7;
-int X = 8;
-int L = 9;
-int SL = 2;
-int ST = 11;   
-// Current controller data
-unsigned int ControllerData = 0;
- 
-// Setup the controller and serial output
-void setup() {
-  pinMode(LatchPin,OUTPUT);
-  pinMode(ClockPin,OUTPUT);
-  pinMode(DataPin,INPUT_PULLUP);
-  pinMode(UP, OUTPUT);  // declares buttons as outputs (don't change these)
-  pinMode(DN, OUTPUT); 
-  pinMode(LT, OUTPUT);
-  pinMode(RT, OUTPUT);
-  pinMode(A, OUTPUT);
-  pinMode(B, OUTPUT);
-  pinMode(R, OUTPUT);
-  pinMode(Y, OUTPUT);
-  pinMode(X, OUTPUT);
-  pinMode(L, OUTPUT);
-  pinMode(SL, OUTPUT);
-  pinMode(ST,OUTPUT);
-  digitalWrite(LatchPin,HIGH);
-  digitalWrite(ClockPin,HIGH);
-  //int LatchPin  = 18; // Latch
-//int ClockPin  = 15; // Clock
-//int DataPin   = 19; // Serial Data
-  
-    LatchPin  = 18; // Latch
-   ClockPin  = 15; // Clock
-   DataPin   = 19; // Serial Data
-  
-  pinMode(LatchPin,OUTPUT);
-  pinMode(ClockPin,OUTPUT);
-  pinMode(DataPin,INPUT_PULLUP);
- 
-  digitalWrite(LatchPin,HIGH);
-  digitalWrite(ClockPin,HIGH);
-
-}
- 
-// Read controller
-void controllerRead() {
-  // Reset controller states and data
-  ControllerData = 0;
-  digitalWrite(LatchPin,LOW);
-  digitalWrite(ClockPin,HIGH);
- 
-  // Controller needs to latch the state of all buttons
-  digitalWrite(LatchPin,HIGH);
-  delayMicroseconds(12);
-  digitalWrite(LatchPin,LOW);
-  delayMicroseconds(6);
- 
-  // Read controller data (initial reading)
-  ControllerData = digitalRead(DataPin);
- 
-  // Send 16 clock pulses, one for each button. 
-  for (int i = 0; i < 16; i ++) {
+#include <EEPROM.h>
     
-    digitalWrite(ClockPin,LOW);
-    delayMicroseconds(6);
-    ControllerData = ControllerData << 1;
-    ControllerData = ControllerData + digitalRead(DataPin) ;
-    delayMicroseconds(6);
-    digitalWrite(ClockPin,HIGH);
-  }
+//SNES Pins (Arduino)
+int DATA_CLOCK    = 15;
+int DATA_LATCH    = 18;
+int DATA_SERIAL  = 19;
+//Buttonpress Status Variables
+int UP = 0;                      // Sets up button press variables.
+int DN = 0; 
+int LT = 0;
+int RT = 0;
+int A = 0;
+int B = 0;
+int X = 0;
+int Y = 0;
+int L = 0;
+int R = 0;
+int ST = 0;   
+int SL = 0;
+// General Variables
+int val = 0;                     // variable for reading the pin status (should be zero)
+int outputb = 0;                 // variable for storing PORTB output values.
+int outputd = 0;                 // variable for storing PORTD output values.
+int buttonmap = 0;               // variable for storing which buttonmap is used for outputs, 0 = sixbuttonmode.
+int remapcount = 0;              // variable for storing the count for the button combo timer
+int remapcombo = 0;              // variable for storing the button combo state
+int autofire = 0;
+int autofirecombo = 0;
+int autofirecount = 0;
+int autofiretimer1 = 0;
+int autofiretimer2 = 0;
+int autofiretimer3 = 0;
+int autofiretimer4 = 0;
+int autofiretimer5 = 0;
+int autofiretimer6 = 0;
+int combodelay = 160;             // variable for storing the number of cycles for the combo timer
+int combodelay2 = 220;           // variable for storing the number of cycles for combo timer 2
+int NB = 0;                      // variable for storing the number of face buttons pressed simultaniously.
+//Buttonmap Values
+int YO = 1;                      // Stores the current output map for each input
+int XO = 2;
+int LO = 3;
+int BO = 4;
+int AO = 5;
+int RO = 6;
+//Autofire Values
+int XA = 0;                      // Stores the current autofire setting for each input
+int YA = 0;
+int LA = 0;
+int AA = 0;
+int BA = 0;
+int RA = 0;
+// Previous Buttonpress Variables
+int XP = 0;                     // Stores the previous state of each button
+int YP = 0;
+int LP = 0;
+int AP = 0;
+int BP = 0;
+int RP = 0;
+// Current Buttonpress Variables
+int XC = 0;                    // Stores the current state of each button
+int YC = 0;
+int LC = 0;
+int AC = 0;
+int BC = 0;
+int RC = 0;
+int STP = 0;
 
-  // Do a NOT, so '1' will be pressed buttons and '0' to the rest
- ControllerData = ~ControllerData;
+int buttons[12];
 
+void setup(){
+  setupPins();
+XO = EEPROM.read(0);
+YO = EEPROM.read(1);
+LO = EEPROM.read(2);
+AO = EEPROM.read(3);
+BO = EEPROM.read(4);
+RO = EEPROM.read(5);
+XA = EEPROM.read(7);
+YA = EEPROM.read(8);
+LA = EEPROM.read(9);
+AA = EEPROM.read(10);
+BA = EEPROM.read(11);
+RA = EEPROM.read(12);
 }
- 
- 
 
-
-
-
-// Program code
-void loop() {
-  // Read controller data
-   LatchPin  = 18; // Latch
-   ClockPin  = 15; // Clock
-   DataPin   = 19; // Serial Data
-   numNs++;
-
-    controllerRead();  
-boolean o = ControllerData ==0;
-boolean i = ControllerData ==0;
- 
-  // Write button outputs based on ControllerData
-  if (ControllerData != 0) {
-    
-    numNs= 0;
-    if (ControllerData & SNES_B) {
-      digitalWrite(B, LOW); // Button output is low
-       } else {
-      digitalWrite(B, HIGH);   // Button output is High
-    }
-    if (ControllerData & SNES_Y) {
-      digitalWrite(Y, LOW);
-      } else {
-      digitalWrite(Y, HIGH);
-    }
-    if (ControllerData & SNES_SELECT) {
-      digitalWrite(SL, LOW);
-      } else {
-      digitalWrite(SL, HIGH);
-    }
-    if (ControllerData & SNES_START) {
-      digitalWrite(ST, LOW);
-      } else {
-      digitalWrite(ST, HIGH);
-    }
-    if (ControllerData & SNES_UP) {
-      digitalWrite(UP, LOW);
-      } else {
-      digitalWrite(UP, HIGH);
-    }
-    if (ControllerData & SNES_DOWN) {
-      digitalWrite(DN, LOW);
-      } else {
-      digitalWrite(DN, HIGH);
-    }
-    if (ControllerData & SNES_LEFT) {
-      digitalWrite(LT, LOW);
-      } else {
-      digitalWrite(LT, HIGH);
-    }
-    if (ControllerData & SNES_RIGHT) {
-      digitalWrite(RT, LOW);
-      } else {
-      digitalWrite(RT, HIGH);
-    }
-    if (ControllerData & SNES_A) {
-      digitalWrite(A, LOW);
-      } else {
-      digitalWrite(A, HIGH);
-    }
-    if (ControllerData & SNES_X) {
-      digitalWrite(X, LOW);
-      } else {
-      digitalWrite(X, HIGH);
-    }
-    if (ControllerData & SNES_L) {
-      digitalWrite(L, LOW);
-      } else {
-      digitalWrite(L, HIGH);
-    }
-    if (ControllerData & SNES_R) {
-      digitalWrite(R, LOW);
-      } else {
-      digitalWrite(R, HIGH);
-    }
-
-  }else{
-
+void loop(){
+  sRAninputs();
+  translatepad(); 
+  buttoncombos();
+if (buttonmap == 1){             // Stores output data for PORTB and PORTD based on sixbutton map.
+  autofire = 0;
+  buttonmapping();
+}else if (autofire == 1){
+  autofiremapping();
+}else{
+  setautofire();
+  setoutputs(); 
   }
- // Sets all button outputs high if none are pressed. 
+  DDRB = outputb;                // Sets PORTB and PORTD outputs based on inputs and the chosen buttonmap.
+  DDRD = outputd;
+}
+
+void setautofire(){
+autofiretimer1 = (autofiretimer1 + 1);
+autofiretimer2 = (autofiretimer2 + 1);
+autofiretimer3 = (autofiretimer3 + 1);
+autofiretimer4 = (autofiretimer4 + 1);
+autofiretimer5 = (autofiretimer5 + 1);
+autofiretimer6 = (autofiretimer6 + 1);
+
+if (autofiretimer1 > 1){
+  autofiretimer1 = 0; 
+}
+if (autofiretimer2 > 2){
+  autofiretimer2 = 0; 
+}
+if (autofiretimer3 > 3){
+  autofiretimer3 = 0; 
+}
+if (autofiretimer4 > 5){
+  autofiretimer4 = 0; 
+}
+if (autofiretimer5 > 7){
+  autofiretimer5 = 0; 
+}
+if (autofiretimer6 > 9){
+  autofiretimer6 = 0; 
+}
+
+if ((XA == 1 && autofiretimer1 < 1) || (XA == 2 && autofiretimer2 < 2) || (XA == 3 && autofiretimer3 < 2) || (XA == 4 && autofiretimer4 < 3) || (XA == 5 && autofiretimer5 < 6) || (XA == 6 && autofiretimer6 < 8)){
+    X = 0;     
+  }
+if ((YA == 1 && autofiretimer1 < 1) || (YA == 2 && autofiretimer2 < 2) || (YA == 3 && autofiretimer3 < 2) || (YA == 4 && autofiretimer4 < 3) || (YA == 5 && autofiretimer5 < 6) || (YA == 6 && autofiretimer6 < 8)){
+    Y = 0;     
+  }
+if ((LA == 1 && autofiretimer1 < 1) || (LA == 2 && autofiretimer2 < 2) || (LA == 3 && autofiretimer3 < 2) || (LA == 4 && autofiretimer4 < 3) || (LA == 5 && autofiretimer5 < 6) || (LA == 6 && autofiretimer6 < 8)){
+    L = 0;     
+  }  
+if ((AA == 1 && autofiretimer1 < 1) || (AA == 2 && autofiretimer2 < 2) || (AA == 3 && autofiretimer3 < 2) || (AA == 4 && autofiretimer4 < 3) || (AA == 5 && autofiretimer5 < 6) || (AA == 6 && autofiretimer6 < 8)){
+    A = 0;     
+  }
+if ((BA == 1 && autofiretimer1 < 1) || (BA == 2 && autofiretimer2 < 2) || (BA == 3 && autofiretimer3 < 2) || (BA == 4 && autofiretimer4 < 3) || (BA == 5 && autofiretimer5 < 6) || (BA == 6 && autofiretimer6 < 8)){
+    B = 0;     
+  }
+if ((RA == 1 && autofiretimer1 < 1) || (RA == 2 && autofiretimer2 < 2) || (RA == 3 && autofiretimer3 < 2) || (RA == 4 && autofiretimer4 < 3) || (RA == 5 && autofiretimer5 < 6) || (RA == 6 && autofiretimer6 < 8)){
+    R = 0;     
+  }
+}
+
+
+void setupPins(void){
  
- if(numNs == 3){
-  digitalWrite(R, HIGH);
-  digitalWrite(L, HIGH);
-  digitalWrite(X, HIGH);
-  digitalWrite(A, HIGH);
-  digitalWrite(RT, HIGH);
-  digitalWrite(LT, HIGH);
-  digitalWrite(DN, HIGH);
-  digitalWrite(UP, HIGH);
-  digitalWrite(ST, HIGH);
-  digitalWrite(SL, HIGH);
-  digitalWrite(Y, HIGH);
-  digitalWrite(B, HIGH);
+  // Set DATA_CLOCK normally HIGH
+  pinMode(DATA_CLOCK, OUTPUT);
+  digitalWrite(DATA_CLOCK, HIGH);
+  
+  // Set DATA_LATCH normally LOW
+  pinMode(DATA_LATCH, OUTPUT);
+  digitalWrite(DATA_LATCH, LOW);
+
+  pinMode(DATA_SERIAL, INPUT_PULLUP);  
+}
+
+void sRAninputs(void){
+    // Latch for 12us
+     delay(16);
+    digitalWrite(DATA_LATCH, HIGH);
+    delayMicroseconds(11);
+    digitalWrite(DATA_LATCH, LOW);
+    delayMicroseconds(6);
+    
+    // Retrieve button presses from shift register by pulling the clock high for 6us
+    for(int i = 0; i < 16; i++){
+        digitalWrite(DATA_CLOCK, LOW);
+        delayMicroseconds(6);
+        if(i <= 11){
+            buttons[i] = digitalRead(DATA_SERIAL);
+        }
+        digitalWrite(DATA_CLOCK, HIGH);
+            delayMicroseconds(6);
+    }
+}
+
+// Prints which buttons are pressed
+void translatepad(void){
+  // New Previous State 
+XP = XC;                      // new previous state variables = old current state variables
+YP = YC;
+RP = RC;
+AP = AC;
+BP = BC;
+LP = LC;
+STP = ST;
+// Reset All Variables
+outputb = 0;                   // Resets Port Maniplulation Variables
+outputd = 0;
+UP = 0;                        // Resets all button state variables
+DN = 0;
+LT = 0;
+RT = 0;
+SL = 0;
+ST = 0;
+NB = 0;
+XC = 0;
+YC = 0;
+LC = 0;
+AC = 0;
+BC = 0;
+RC = 0;
+X = 0;
+Y = 0;
+L = 0;
+A = 0;
+B = 0;
+R = 0;
+
+    if(buttons[0] == 0){
+  B = BO;                        // Stores the B button as pressed.
+  BC = 1;                     
+  }
+    if(buttons[1] == 0){
+  Y = YO;                       
+  YC = 1;                     
+  }
+    if(buttons[2] == 0){
+  SL = 1;                                            
+  }
+    if(buttons[3] == 0){                       
+  ST = 1;                     
+  }
+    if(buttons[4] == 0){
+  UP = 1;                     
+  }
+    if(buttons[5] == 0){
+  DN = 1;                     
+  }
+    if(buttons[6] == 0){
+  LT = 1;                     
+  }
+    if(buttons[7] == 0){
+  RT = 1;                     
+  }
+    if(buttons[8] == 0){
+  A = AO;                       
+  AC = 1;                     
+    }
+    if(buttons[9] == 0){
+  X = XO;                       
+  XC = 1;                     
+  }
+    if(buttons[10] == 0){
+  L = LO;                       
+  LC = 1;                     
+  }
+    if(buttons[11] == 0){
+  R = RO;                       
+  RC = 1;                     
+  }
+  NB = (XC + YC + LC + AC + BC + RC);
+}
+
+void setoutputs(){           // Translates demuxpad data into the sixbutton output map.
+
+if (Y == 2 || X == 2 || L == 2 || A == 2 || B == 2 || R == 2) 
+  outputb |= 1;                    
+if (L == 3 || Y == 3 || X == 3 || A == 3 || B == 3 || R == 3)
+  outputb |= 2; 
+if (A == 4 || Y == 4 || X == 4 || L == 4 || B == 4 || R == 4)
+  outputb |= 4;    
+if (ST == 1) 
+  outputb |= 8;
+if (R == 6 || Y == 6 || X == 6 || L == 6 || A == 6 || B == 6)
+  outputb |= 16;
+if (B == 5 || Y == 5 || X == 5 || L == 5 || A == 5 || R == 5) 
+  outputb |= 32;    
+if (UP == 1)
+  outputd |= 2;                    
+if (SL == 1)
+  outputd |= 4;
+if (DN == 1)
+  outputd |= 16;           
+if (LT == 1)   
+  outputd |= 32;
+if (RT == 1)
+  outputd |= 64;
+if (X == 1 || Y == 1 || L == 1 || A == 1 || B == 1 || R == 1) 
+  outputd |= 128;    
+}
+
+void buttoncombos(){
+if (ST == 1 && (NB == 2 && (STP == 1))){        // Checks if Start and 2 buttons are pressed. 
+  remapcount = (remapcount + 1);
+}else{ 
+  remapcount = 0;
+}
+
+if (remapcount >= combodelay){
+remapcount = 0;
+buttonmap = 1;                // Sets buttonmap mode to 1 
  }
- 
- if(   !i || ControllerData != 0  ){
+
+if (ST == 1 && (NB == 1 && (STP == 1))){        // Checks if Start and 2 buttons are pressed. 
+  autofirecount = (autofirecount + 1);
+}else{ 
+  autofirecount = 0;
+}
+
+if (autofirecount >= combodelay){
+autofirecount = 0;
+autofire = 1;                // Sets autofire mode to 1 
  }
-  delay(10);
+}
+
+
+void buttonmapping(){
+if (ST == 1 && (NB == 2)){                        // Checks if the buttonmap combo is still held. 
+ XO = 0;                                          // Resets all buttonmap values to 0
+ YO = 0;
+ LO = 0;
+ AO = 0;
+ BO = 0;
+ RO = 0;
+}else{                                                       // If buttonmap combo is no longer pressed, continue to button mapping mode
+if (XC == 1 && (XP == 0 && (NB == 1))){            // If X is currently pressed, if X was previously not pressed, if only one button (X) is pressed and if XO is less than 6
+  XO = (XO + 1);                                             // If all of the above conditions are met, XO is iterated +1
+}
+if (XO > 6){                                       // If XO is greater than 6, XO is reset to 0
+  XO = 0;
+}
+if (YC == 1 && (YP == 0 && (NB == 1))){
+  YO = (YO + 1);
+}
+if (YO > 6){
+  YO = 0;
+}
+if (LC == 1 && (LP == 0 && (NB == 1))){
+  LO = (LO + 1);
+}
+if (LO > 6){
+  LO = 0;
+}
+if (AC == 1 && (AP == 0 && (NB == 1))){
+  AO = (AO + 1);
+}
+if (AO > 6){
+  AO = 0;
+}
+if (BC == 1 && (BP == 0 && (NB == 1))){
+  BO = (BO + 1);
+}
+if (BO > 6){
+  BO = 0;
+}
+if (RC == 1 && (RP == 0 && (NB == 1))){
+  RO = (RO + 1);
+}
+if (RO > 6){
+  RO = 0;
+  }
+if (ST == 1 && (STP == 0)){
+    buttonmap = 0;
+    EEPROM.write(0,XO);
+    EEPROM.write(1,YO);
+    EEPROM.write(2,LO);
+    EEPROM.write(3,AO);
+    EEPROM.write(4,BO);
+    EEPROM.write(5,RO);
+    
+  } 
+ }
+}
+
+void autofiremapping(){
+if (ST == 1 && (NB == 1)){                        // Checks if the buttonmap combo is still held. 
+ XA = 0;                                          // Resets all buttonmap values to 0
+ YA = 0;
+ LA = 0;
+ AA = 0;
+ BA = 0;
+ RA = 0;
+}else{                                                       // If buttonmap combo is no longer pressed, continue to button mapping mode
+if (XC == 1 && (XP == 0 && (NB == 1))){            // If X is currently pressed, if X was previously not pressed, if only one button (X) is pressed and if XO is less than 6
+  XA = (XA + 1);                                             // If all of the above conditions are met, XO is iterated +1
+}
+if (XA > 6){                                       // If XO is greater than 6, XO is reset to 0
+  XA = 0;
+}
+if (YC == 1 && (YP == 0 && (NB == 1))){
+  YA = (YA + 1);
+}
+if (YA > 6){
+  YA = 0;
+}
+if (LC == 1 && (LP == 0 && (NB == 1))){
+  LA = (LA + 1);
+}
+if (LA > 6){
+  LA = 0;
+}
+if (AC == 1 && (AP == 0 && (NB == 1))){
+  AA = (AA + 1);
+}
+if (AA > 6){
+  AA = 0;
+}
+if (BC == 1 && (BP == 0 && (NB == 1))){
+  BA = (BA + 1);
+}
+if (BA > 6){
+  BA = 0;
+}
+if (RC == 1 && (RP == 0 && (NB == 1))){
+  RA = (RA + 1);
+}
+if (RA > 6){
+  RA = 0;
+  }
+if (ST == 1 && (STP == 0)){
+    autofire = 0;
+    EEPROM.write(7,XA);
+    EEPROM.write(8,YA);
+    EEPROM.write(9,LA);
+    EEPROM.write(10,AA);
+    EEPROM.write(11,BA);
+    EEPROM.write(12,RA);
+    
+  } 
+ }
 }
