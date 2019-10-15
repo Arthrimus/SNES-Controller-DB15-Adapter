@@ -86,7 +86,7 @@ RA = EEPROM.read(12);
 }
 
 void loop(){
-  sRAninputs();
+  scaninputs();
   translatepad(); 
   buttoncombos();
 if (buttonmap == 1){             // Stores output data for PORTB and PORTD based on sixbutton map.
@@ -163,7 +163,7 @@ void setupPins(void){
   pinMode(DATA_SERIAL, INPUT_PULLUP);  
 }
 
-void sRAninputs(void){
+void scaninputs(void){
     // Latch for 12us
      delay(16);
     digitalWrite(DATA_LATCH, HIGH);
