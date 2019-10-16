@@ -60,7 +60,7 @@ Once in remapping mode press each button the corresponding number of times to ac
 
 The Brook Retro Board has been extremely difficult to get working properly with this code. After a large amount of tweaking, Retro Boards finally work almost completely bug free. There is still one lingering issue that I am trying to solve. Sometimes when holding multiple buttons for extended periods of time, the Retro Board will drop the held inputs for 1 cycle, which results in the button releasing for 1/2 of a frame. This could cause you to, for example, release a charged shot unintentionally in a shmup.
 
-As a stopgap solution I have implemented the "Brook Fix". When the Brook Fix is enabled, every time a button is released the converter waits one extra cycle to make sure the button is still released before actually setting the button as released on the output. The resulting fix stops random button releases, but comes with the penalty of adding 16ms of lag on button releases. Button presses are not affected by this lag. 
+As a stopgap solution I have implemented the "Brook Fix". When the Brook Fix is enabled, every time a button is released the code waits one extra cycle to make sure the button is actually released before setting the button as released on the output. The resulting fix stops random button releases, but comes with the penalty of adding 16ms of lag on button releases. Button presses are not affected by this lag. 
 
  - To turn the Brook Fix on press and hold any 5 face buttons and START for 3 seconds.
  - To turn the Brook Fix off press and hold any 6 face buttons and START for 3 seconds.
