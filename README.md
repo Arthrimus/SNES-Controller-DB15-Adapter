@@ -25,9 +25,9 @@ The upload the .ino file to an Arduino Uno or similar compatible device and conn
   - R     = 12
 
 **SNES Pins**
- - DATA_CLOCK = 15
- - DATA_LATCH = 18
- - DATA_SERIAL = 19
+ - CLOCK = 15
+ - LATCH = 18
+ - DATA = 19
 
 # BUTTON REMAPPING AND AUTOFIRE
 
