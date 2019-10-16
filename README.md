@@ -62,8 +62,8 @@ The Brook Retro Board has been extremely difficult to get working properly with 
 
 As a stopgap solution I have implemented the "Brook Fix". When the Brook Fix is enabled, every time a button is released the code waits one extra cycle to make sure the button is actually released before setting the button as released on the output. The resulting fix stops random button releases, but comes with the penalty of adding 16ms of lag on button releases. Button presses are not affected by this lag. 
 
- - To turn the Brook Fix on press and hold any 5 face buttons and START for 3 seconds.
- - To turn the Brook Fix off press and hold any 6 face buttons and START for 3 seconds.
+ - To turn the Brook Fix on press and hold any 5 buttons (excluding select and d-pad) + START for 3 seconds.
+ - To turn the Brook Fix off press and hold any 6 buttons (excluding select and d-pad) + START for 3 seconds.
  
  The Brook Fix setting is saved in the EEPROM so you don't have to set it every time you use it.
 
