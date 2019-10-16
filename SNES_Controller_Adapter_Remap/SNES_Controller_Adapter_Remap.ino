@@ -24,10 +24,13 @@ int outputb = 0;                 // variable for storing PORTB output values.
 int outputd = 0;                 // variable for storing PORTD output values.
 int buttonmap = 0;               // variable for storing which buttonmap is used for outputs, 0 = sixbuttonmode.
 int remapcount = 0;              // variable for storing the count for the button combo timer
+int bfcount = 0;
 int remapcombo = 0;              // variable for storing the button combo state
+int bfcount1 = 0;
 int combodelay = 160;             // variable for storing the number of cycles for the combo timer
 int combodelay2 = 220;           // variable for storing the number of cycles for combo timer 2
 int NB = 0;                      // variable for storing the number of face buttons pressed simultaniously.
+int brookfix = 1;
 //Buttonmap Values
 int YO = 1;                      // Stores the current output map for each input
 int XO = 2;
@@ -42,6 +45,12 @@ int LP = 0;
 int AP = 0;
 int BP = 0;
 int RP = 0;
+int STP = 0;
+int SLP = 0;
+int UPP = 0;
+int DNP = 0;
+int LTP = 0;
+int RTP = 0;
 // Current Buttonpress Variables
 int XC = 0;                    // Stores the current state of each button
 int YC = 0;
@@ -49,7 +58,13 @@ int LC = 0;
 int AC = 0;
 int BC = 0;
 int RC = 0;
-int STP = 0;
+int STC = 0;
+int SLC = 0;
+int UPC = 0;
+int DNC = 0;
+int LTC = 0;
+int RTC = 0;
+
 
 int buttons[12];
 
@@ -61,12 +76,16 @@ LO = EEPROM.read(2);
 AO = EEPROM.read(3);
 BO = EEPROM.read(4);
 RO = EEPROM.read(5);
+brookfix = EEPROM.read(6);
 }
 
 void loop(){
   scaninputs();
   translatepad(); 
   buttoncombos();
+  if (brookfix == 1){
+    brookfixmode();
+  }
 if (buttonmap == 1){             // Stores output data for PORTB and PORTD based on sixbutton map.
   buttonmapping();
 }else{
@@ -91,7 +110,8 @@ void setupPins(void){
 
 void scaninputs(void){
     // Latch for 12us
-     delay(16);
+     delay(15);
+    delayMicroseconds(450);
     digitalWrite(DATA_LATCH, HIGH);
     delayMicroseconds(11);
     digitalWrite(DATA_LATCH, LOW);
@@ -118,7 +138,12 @@ RP = RC;
 AP = AC;
 BP = BC;
 LP = LC;
-STP = ST;
+STP = STC;
+SLP = SLC;
+UPP = UPC;
+DNP = DNC;
+LTP = LTC;
+RTP = RTC;
 // Reset All Variables
 outputb = 0;                   // Resets Port Maniplulation Variables
 outputd = 0;
@@ -129,6 +154,12 @@ RT = 0;
 SL = 0;
 ST = 0;
 NB = 0;
+STC = 0;
+SLC = 0;
+UPC = 0;
+DNC = 0;
+LTC = 0;
+RTC = 0;
 XC = 0;
 YC = 0;
 LC = 0;
@@ -151,22 +182,28 @@ R = 0;
   YC = 1;                     
   }
     if(buttons[2] == 0){
-  SL = 1;                                            
+  SL = 1;     
+  SLC = 1;                                       
   }
     if(buttons[3] == 0){                       
-  ST = 1;                     
+  ST = 1;    
+  STC = 1;                 
   }
     if(buttons[4] == 0){
-  UP = 1;                     
+  UP = 1; 
+  UPC = 1;                    
   }
     if(buttons[5] == 0){
-  DN = 1;                     
+  DN = 1; 
+  DNC = 1;                    
   }
     if(buttons[6] == 0){
-  LT = 1;                     
+  LT = 1; 
+  LTC = 1;                    
   }
     if(buttons[7] == 0){
-  RT = 1;                     
+  RT = 1; 
+  RTC = 1;                    
   }
     if(buttons[8] == 0){
   A = AO;                       
@@ -226,6 +263,26 @@ if (remapcount >= combodelay){
 remapcount = 0;
 buttonmap = 1;                // Sets buttonmap mode to 1 
  }
+if (ST == 1 && (NB == 6 && (STP == 1))){
+  bfcount = (bfcount + 1);
+}else{ bfcount = 0;
+}
+if (ST == 1 && (NB == 5 && (STP == 1))){
+  bfcount1 = (bfcount1 + 1);
+}else{ bfcount1 = 0;
+}
+
+if (bfcount >= combodelay){
+  bfcount = 0;
+  brookfix = 0;
+  EEPROM.write(6,brookfix);
+  }
+if (bfcount1 >= combodelay){
+  bfcount1 = 0;
+  brookfix = 1; 
+  EEPROM.write(6,brookfix);
+  
+  }
 }
 
 
@@ -285,4 +342,43 @@ if (ST == 1 && (STP == 0)){
     
   } 
  }
+}
+
+void brookfixmode(){
+  if (BC == 0 && BP == 1){
+    B = BO;
+  }
+    if (AC == 0 && AP == 1){
+    A = AO;
+  }
+    if (XC == 0 && XP == 1){
+    X = XO;
+  }
+    if (YC == 0 && YP == 1){
+    Y = YO;
+  }
+    if (LC == 0 && LP == 1){
+    L = LO;
+  }
+    if (RC == 0 && RP == 1){
+    R = RO;
+  }
+    if (STC == 0 && STP == 1){
+    ST = STP;
+  }
+    if (SLC == 0 && SLP == 1){
+    SL = SLP;
+  }
+      if (UPC == 0 && UPP == 1){
+    UP = UPP;
+  }
+      if (DNC == 0 && DNP == 1){
+    DN = DNP;
+  }
+      if (LTC == 0 && LTP == 1){
+    LT = LTP;
+  }
+      if (RTC == 0 && RTP == 1){
+    RT = RTP;
+  }
 }
