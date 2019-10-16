@@ -56,6 +56,8 @@ Once in remapping mode press each button the corresponding number of times to ac
   - ~7.5hz = 5 presses
   - ~6hz = 6 presses
 
+Button mapping and auto fire settings are saved in the EEPROM so they will persist after power cycling the AVR.
+
 # Brook Fix #
 
 The Brook Retro Board has been extremely difficult to get working properly with this code. After a large amount of tweaking, Retro Boards finally work almost completely bug free. There is still one lingering issue that I am trying to solve. Sometimes when holding multiple buttons for extended periods of time, the Retro Board will drop the held inputs for 1 cycle, which results in the button releasing for 1/2 of a frame. This could cause you to, for example, release a charged shot unintentionally in a shmup.
