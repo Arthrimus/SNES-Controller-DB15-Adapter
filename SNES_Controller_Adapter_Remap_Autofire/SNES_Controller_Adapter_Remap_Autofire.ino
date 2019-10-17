@@ -147,22 +147,22 @@ if (autofiretimer6 > 9){
   autofiretimer6 = 0; 
 }
 
-if ((XA == 1 && autofiretimer1 < 1) || (XA == 2 && autofiretimer2 < 2) || (XA == 3 && autofiretimer3 < 2) || (XA == 4 && autofiretimer4 < 3) || (XA == 5 && autofiretimer5 < 6) || (XA == 6 && autofiretimer6 < 8)){
+if ((XA == 1 && autofiretimer1 < 1) || (XA == 2 && autofiretimer2 < 2) || (XA == 3 && autofiretimer3 < 2) || (XA == 4 && autofiretimer4 < 3) || (XA == 5 && autofiretimer5 < 4) || (XA == 6 && autofiretimer6 < 5)){
     X = 0;     
   }
-if ((YA == 1 && autofiretimer1 < 1) || (YA == 2 && autofiretimer2 < 2) || (YA == 3 && autofiretimer3 < 2) || (YA == 4 && autofiretimer4 < 3) || (YA == 5 && autofiretimer5 < 6) || (YA == 6 && autofiretimer6 < 8)){
+if ((YA == 1 && autofiretimer1 < 1) || (YA == 2 && autofiretimer2 < 2) || (YA == 3 && autofiretimer3 < 2) || (YA == 4 && autofiretimer4 < 3) || (YA == 5 && autofiretimer5 < 4) || (YA == 6 && autofiretimer6 < 5)){
     Y = 0;     
   }
-if ((LA == 1 && autofiretimer1 < 1) || (LA == 2 && autofiretimer2 < 2) || (LA == 3 && autofiretimer3 < 2) || (LA == 4 && autofiretimer4 < 3) || (LA == 5 && autofiretimer5 < 6) || (LA == 6 && autofiretimer6 < 8)){
+if ((LA == 1 && autofiretimer1 < 1) || (LA == 2 && autofiretimer2 < 2) || (LA == 3 && autofiretimer3 < 2) || (LA == 4 && autofiretimer4 < 3) || (LA == 5 && autofiretimer5 < 4) || (LA == 6 && autofiretimer6 < 5)){
     L = 0;     
   }  
-if ((AA == 1 && autofiretimer1 < 1) || (AA == 2 && autofiretimer2 < 2) || (AA == 3 && autofiretimer3 < 2) || (AA == 4 && autofiretimer4 < 3) || (AA == 5 && autofiretimer5 < 6) || (AA == 6 && autofiretimer6 < 8)){
+if ((AA == 1 && autofiretimer1 < 1) || (AA == 2 && autofiretimer2 < 2) || (AA == 3 && autofiretimer3 < 2) || (AA == 4 && autofiretimer4 < 3) || (AA == 5 && autofiretimer5 < 4) || (AA == 6 && autofiretimer6 < 5)){
     A = 0;     
   }
-if ((BA == 1 && autofiretimer1 < 1) || (BA == 2 && autofiretimer2 < 2) || (BA == 3 && autofiretimer3 < 2) || (BA == 4 && autofiretimer4 < 3) || (BA == 5 && autofiretimer5 < 6) || (BA == 6 && autofiretimer6 < 8)){
+if ((BA == 1 && autofiretimer1 < 1) || (BA == 2 && autofiretimer2 < 2) || (BA == 3 && autofiretimer3 < 2) || (BA == 4 && autofiretimer4 < 3) || (BA == 5 && autofiretimer5 < 4) || (BA == 6 && autofiretimer6 < 5)){
     B = 0;     
   }
-if ((RA == 1 && autofiretimer1 < 1) || (RA == 2 && autofiretimer2 < 2) || (RA == 3 && autofiretimer3 < 2) || (RA == 4 && autofiretimer4 < 3) || (RA == 5 && autofiretimer5 < 6) || (RA == 6 && autofiretimer6 < 8)){
+if ((RA == 1 && autofiretimer1 < 1) || (RA == 2 && autofiretimer2 < 2) || (RA == 3 && autofiretimer3 < 2) || (RA == 4 && autofiretimer4 < 3) || (RA == 5 && autofiretimer5 < 4) || (RA == 6 && autofiretimer6 < 5)){
     R = 0;     
   }
 }
