@@ -104,7 +104,7 @@ void loop(){
   scaninputs();
   translatepad(); 
   buttoncombos();
-if (brookfix == 1){
+if (brookfix |= 0){
     brookfixmode();
   }
 if (buttonmap == 1){             // Stores output data for PORTB and PORTD based on sixbutton map.
