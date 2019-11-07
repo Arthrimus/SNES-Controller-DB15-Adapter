@@ -98,6 +98,13 @@ LA = EEPROM.read(9);
 AA = EEPROM.read(10);
 BA = EEPROM.read(11);
 RA = EEPROM.read(12);
+
+for (int i = 0; i <= 11; i++) {
+    DDRD = 0;
+    delay(16);
+    DDRD |= 1;
+    delay(16);
+  }
 }
 
 void loop(){
@@ -378,7 +385,11 @@ if (ST == 1 && (NB == 2)){                        // Checks if the buttonmap com
  AO = 0;
  BO = 0;
  RO = 0;
+ outputd = 0;
+ outputd |= 1;
+ DDRD = outputd;
 }else{                                                       // If buttonmap combo is no longer pressed, continue to button mapping mode
+outputd |= 1;
 if (XC == 1 && (XP == 0 && (NB == 1))){            // If X is currently pressed, if X was previously not pressed, if only one button (X) is pressed and if XO is less than 6
   XO = (XO + 1);                                             // If all of the above conditions are met, XO is iterated +1
 }
@@ -415,6 +426,10 @@ if (RC == 1 && (RP == 0 && (NB == 1))){
 if (RO > 6){
   RO = 0;
   }
+      if (NB == 1){
+  outputd = 0;
+  }
+DDRD = outputd;
 if (ST == 1 && (STP == 0)){
     buttonmap = 0;
     EEPROM.write(0,XO);
@@ -436,7 +451,11 @@ if (ST == 1 && (NB == 1)){                        // Checks if the buttonmap com
  AA = 0;
  BA = 0;
  RA = 0;
+  outputd = 0;
+ outputd |= 1;
+ DDRD = outputd;
 }else{                                                       // If buttonmap combo is no longer pressed, continue to button mapping mode
+outputd |= 1;
 if (XC == 1 && (XP == 0 && (NB == 1))){            // If X is currently pressed, if X was previously not pressed, if only one button (X) is pressed and if XO is less than 6
   XA = (XA + 1);                                             // If all of the above conditions are met, XO is iterated +1
 }
@@ -473,6 +492,10 @@ if (RC == 1 && (RP == 0 && (NB == 1))){
 if (RA > 6){
   RA = 0;
   }
+      if (NB == 1){
+  outputd = 0;
+  }
+DDRD = outputd;
 if (ST == 1 && (STP == 0)){
     autofire = 0;
     EEPROM.write(7,XA);
