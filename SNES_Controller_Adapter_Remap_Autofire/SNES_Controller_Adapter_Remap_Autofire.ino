@@ -40,6 +40,7 @@ int combodelay = 160;             // variable for storing the number of cycles f
 int combodelay2 = 220;           // variable for storing the number of cycles for combo timer 2
 int NB = 0;                      // variable for storing the number of face buttons pressed simultaniously.
 int brookfix = 1;
+int HASmode = 0;
 //Buttonmap Values
 int YO = 1;                      // Stores the current output map for each input
 int XO = 2;
@@ -47,6 +48,8 @@ int LO = 3;
 int BO = 4;
 int AO = 5;
 int RO = 6;
+int STO = 7;
+int SLO = 8;
 //Autofire Values
 int XA = 0;                      // Stores the current autofire setting for each input
 int YA = 0;
@@ -85,20 +88,20 @@ int buttons[12];
 
 void setup(){
   setupPins();
-XO = EEPROM.read(0);
-YO = EEPROM.read(1);
-LO = EEPROM.read(2);
-AO = EEPROM.read(3);
-BO = EEPROM.read(4);
-RO = EEPROM.read(5);
-brookfix = EEPROM.read(6);
-XA = EEPROM.read(7);
-YA = EEPROM.read(8);
-LA = EEPROM.read(9);
-AA = EEPROM.read(10);
-BA = EEPROM.read(11);
-RA = EEPROM.read(12);
-
+HASmode = EEPROM.read(17);
+for (int i = 0; i <= 11; i++) {
+scaninputs();
+}
+    if (buttons[8] == 0){{
+    HASmode = (HASmode + 1);               
+    }
+    if (HASmode > 1){
+      HASmode = 0; 
+    }
+    EEPROM.write(17,HASmode);   
+    }
+    
+if (HASmode == 0){
 for (int i = 0; i <= 11; i++) {
     DDRD = 0;
     delay(16);
@@ -106,12 +109,36 @@ for (int i = 0; i <= 11; i++) {
     delay(16);
   }
 }
+if (HASmode == 1){
+   DDRD |= 1;
+   delay(1000);
+   DDRD = 0;
+}
+  if (HASmode == 0){
+XO = EEPROM.read(0);
+YO = EEPROM.read(1);
+LO = EEPROM.read(2);
+AO = EEPROM.read(3);
+BO = EEPROM.read(4);
+RO = EEPROM.read(5);
+XA = EEPROM.read(7);
+YA = EEPROM.read(8);
+LA = EEPROM.read(9);
+AA = EEPROM.read(10);
+BA = EEPROM.read(11);
+RA = EEPROM.read(12);
+  }
+brookfix = EEPROM.read(6);
+
+}
 
 void loop(){
   scaninputs();
   translatepad(); 
+if (HASmode == 0){
   buttoncombos();
-if (brookfix |= 0){
+  }
+if (brookfix != 0){
     brookfixmode();
   }
 if (buttonmap == 1){             // Stores output data for PORTB and PORTD based on sixbutton map.
@@ -262,11 +289,11 @@ R = 0;
   YC = 1;                     
   }
     if(buttons[2] == 0){
-  SL = 1;     
+  SL = SLO;     
   SLC = 1;                                       
   }
     if(buttons[3] == 0){                       
-  ST = 1;    
+  ST = STO;    
   STC = 1;                 
   }
     if(buttons[4] == 0){
@@ -306,21 +333,21 @@ R = 0;
 
 void setoutputs(){           // Translates demuxpad data into the sixbutton output map.
 
-if (Y == 2 || X == 2 || L == 2 || A == 2 || B == 2 || R == 2) 
+if (Y == 2 || X == 2 || L == 2 || A == 2 || B == 2 || R == 2 || ST == 2 || SL == 2) 
   outputb |= 1;                    
-if (L == 3 || Y == 3 || X == 3 || A == 3 || B == 3 || R == 3)
+if (L == 3 || Y == 3 || X == 3 || A == 3 || B == 3 || R == 3 || ST == 3 || SL == 3)
   outputb |= 2; 
-if (A == 4 || Y == 4 || X == 4 || L == 4 || B == 4 || R == 4)
+if (A == 4 || Y == 4 || X == 4 || L == 4 || B == 4 || R == 4 || ST == 4 || SL == 4)
   outputb |= 4;    
-if (ST == 1) 
+if (ST == 7 || A == 7 || Y == 7 || X == 7 || L == 7 || B == 7 || R == 7 || SL == 7)
   outputb |= 8;
-if (R == 6 || Y == 6 || X == 6 || L == 6 || A == 6 || B == 6)
+if (R == 6 || Y == 6 || X == 6 || L == 6 || A == 6 || B == 6 || ST == 6 || SL == 6)
   outputb |= 16;
-if (B == 5 || Y == 5 || X == 5 || L == 5 || A == 5 || R == 5) 
+if (B == 5 || Y == 5 || X == 5 || L == 5 || A == 5 || R == 5 || ST == 5 || SL == 5) 
   outputb |= 32;    
 if (UP == 1)
   outputd |= 2;                    
-if (SL == 1)
+if (SL == 8 || R == 8 || Y == 8 || X == 8 || L == 8 || A == 8 || B == 8 || ST == 8)
   outputd |= 4;
 if (DN == 1)
   outputd |= 16;           
@@ -328,12 +355,12 @@ if (LT == 1)
   outputd |= 32;
 if (RT == 1)
   outputd |= 64;
-if (X == 1 || Y == 1 || L == 1 || A == 1 || B == 1 || R == 1) 
+if (X == 1 || Y == 1 || L == 1 || A == 1 || B == 1 || R == 1 || ST == 1 || SL == 1) 
   outputd |= 128;    
 }
 
 void buttoncombos(){
-if (ST == 1 && (NB == 2 && (STP == 1))){        // Checks if Start and 2 buttons are pressed. 
+if (STC == 1 && (NB == 2 && (STP == 1))){        // Checks if Start and 2 buttons are pressed. 
   remapcount = (remapcount + 1);
 }else{ 
   remapcount = 0;
@@ -344,7 +371,7 @@ remapcount = 0;
 buttonmap = 1;                // Sets buttonmap mode to 1 
  }
 
-if (ST == 1 && (NB == 1 && (STP == 1))){        // Checks if Start and 2 buttons are pressed. 
+if (STC == 1 && (NB == 1 && (STP == 1))){        // Checks if Start and 2 buttons are pressed. 
   autofirecount = (autofirecount + 1);
 }else{ 
   autofirecount = 0;
@@ -354,11 +381,11 @@ if (autofirecount >= combodelay){
 autofirecount = 0;
 autofire = 1;                // Sets autofire mode to 1 
  }
-if (ST == 1 && (NB == 6 && (STP == 1))){
+if (STC == 1 && (NB == 6 && (STP == 1))){
   bfcount = (bfcount + 1);
 }else{ bfcount = 0;
 }
-if (ST == 1 && (NB == 5 && (STP == 1))){
+if (STC == 1 && (NB == 5 && (STP == 1))){
   bfcount1 = (bfcount1 + 1);
 }else{ bfcount1 = 0;
 }
@@ -378,7 +405,7 @@ if (bfcount1 >= combodelay){
 
 
 void buttonmapping(){
-if (ST == 1 && (NB == 2)){                        // Checks if the buttonmap combo is still held. 
+if (STC == 1 && (NB == 2)){                        // Checks if the buttonmap combo is still held. 
  XO = 0;                                          // Resets all buttonmap values to 0
  YO = 0;
  LO = 0;
@@ -393,44 +420,44 @@ outputd |= 1;
 if (XC == 1 && (XP == 0 && (NB == 1))){            // If X is currently pressed, if X was previously not pressed, if only one button (X) is pressed and if XO is less than 6
   XO = (XO + 1);                                             // If all of the above conditions are met, XO is iterated +1
 }
-if (XO > 6){                                       // If XO is greater than 6, XO is reset to 0
+if (XO > 8){                                       // If XO is greater than 6, XO is reset to 0
   XO = 0;
 }
 if (YC == 1 && (YP == 0 && (NB == 1))){
   YO = (YO + 1);
 }
-if (YO > 6){
+if (YO > 8){
   YO = 0;
 }
 if (LC == 1 && (LP == 0 && (NB == 1))){
   LO = (LO + 1);
 }
-if (LO > 6){
+if (LO > 8){
   LO = 0;
 }
 if (AC == 1 && (AP == 0 && (NB == 1))){
   AO = (AO + 1);
 }
-if (AO > 6){
+if (AO > 8){
   AO = 0;
 }
 if (BC == 1 && (BP == 0 && (NB == 1))){
   BO = (BO + 1);
 }
-if (BO > 6){
+if (BO > 8){
   BO = 0;
 }
 if (RC == 1 && (RP == 0 && (NB == 1))){
   RO = (RO + 1);
 }
-if (RO > 6){
+if (RO > 8){
   RO = 0;
   }
       if (NB == 1){
   outputd = 0;
   }
 DDRD = outputd;
-if (ST == 1 && (STP == 0)){
+if (STC == 1 && (STP == 0)){
     buttonmap = 0;
     EEPROM.write(0,XO);
     EEPROM.write(1,YO);
@@ -444,7 +471,7 @@ if (ST == 1 && (STP == 0)){
 }
 
 void autofiremapping(){
-if (ST == 1 && (NB == 1)){                        // Checks if the buttonmap combo is still held. 
+if (STC == 1 && (NB == 1)){                        // Checks if the buttonmap combo is still held. 
  XA = 0;                                          // Resets all buttonmap values to 0
  YA = 0;
  LA = 0;
@@ -459,44 +486,44 @@ outputd |= 1;
 if (XC == 1 && (XP == 0 && (NB == 1))){            // If X is currently pressed, if X was previously not pressed, if only one button (X) is pressed and if XO is less than 6
   XA = (XA + 1);                                             // If all of the above conditions are met, XO is iterated +1
 }
-if (XA > 6){                                       // If XO is greater than 6, XO is reset to 0
+if (XA > 8){                                       // If XO is greater than 6, XO is reset to 0
   XA = 0;
 }
 if (YC == 1 && (YP == 0 && (NB == 1))){
   YA = (YA + 1);
 }
-if (YA > 6){
+if (YA > 8){
   YA = 0;
 }
 if (LC == 1 && (LP == 0 && (NB == 1))){
   LA = (LA + 1);
 }
-if (LA > 6){
+if (LA > 8){
   LA = 0;
 }
 if (AC == 1 && (AP == 0 && (NB == 1))){
   AA = (AA + 1);
 }
-if (AA > 6){
+if (AA > 8){
   AA = 0;
 }
 if (BC == 1 && (BP == 0 && (NB == 1))){
   BA = (BA + 1);
 }
-if (BA > 6){
+if (BA > 8){
   BA = 0;
 }
 if (RC == 1 && (RP == 0 && (NB == 1))){
   RA = (RA + 1);
 }
-if (RA > 6){
+if (RA > 8){
   RA = 0;
-  }
+  } 
       if (NB == 1){
   outputd = 0;
   }
 DDRD = outputd;
-if (ST == 1 && (STP == 0)){
+if (STC == 1 && (STP == 0)){
     autofire = 0;
     EEPROM.write(7,XA);
     EEPROM.write(8,YA);
@@ -504,7 +531,6 @@ if (ST == 1 && (STP == 0)){
     EEPROM.write(10,AA);
     EEPROM.write(11,BA);
     EEPROM.write(12,RA);
-    
   } 
  }
 }
@@ -529,10 +555,10 @@ void brookfixmode(){
     R = RO;
   }
     if (STC == 0 && STP == 1){
-    ST = STP;
+    ST = STO;
   }
     if (SLC == 0 && SLP == 1){
-    SL = SLP;
+    SL = SLO;
   }
       if (UPC == 0 && UPP == 1){
     UP = UPP;
