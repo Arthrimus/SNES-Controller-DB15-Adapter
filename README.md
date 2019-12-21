@@ -29,6 +29,22 @@ The upload the .ino file to an Arduino Uno or similar compatible device and conn
  - LATCH = 18
  - DATA = 19
 
+| Arduino | ATmega | DSUB15 | Button |
+|---------|--------|--------|--------|
+|7	|PD7	|13	|B1
+|8	|PB0	|5	|B2
+|9	|PB1	|12	|B3
+|10	|PB2	|4	|B4
+|12 |PB4	|2	|B5
+|13	|PB5	|10	|B6
+|1	|PD1	|15	|Up
+|4	|PD4	|7	|Down
+|6	|PD6	|6	|Right
+|5	|PD5	|14	|Left
+|11	|PB3	|11	|Start
+|2	|PD2	|3	|Select
+
+
 # BUTTON REMAPPING AND AUTOFIRE
 
 In the code folder there is an arduino sketch labeled "SNES_Controller_Adapter_Remap.ino" This firmware has full fledged on the fly remapping of A,B,R,X,Y and L. 
