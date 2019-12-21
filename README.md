@@ -73,7 +73,7 @@ As a stopgap solution I have implemented the "Brook Fix". When the Brook Fix is 
  
  # HAS Mode #
  
- The HAS (Home Arcade System) supergun already has built in button remapping and rapid fire functionality. It is programmed through the same process as these adapters, so to eleminate conflicts when using one of my adapters on a HAS supergun, I have implemented a special HAS mode that can be enabled at startup, which disables the button remapping and rapid fire functionality of the adapter, leaving those functions to the HAS. 
+ The HAS (Home Arcade System) supergun already has built in button remapping and rapid fire functionality. It is programmed through the same process as these adapters, so to eleminate conflicts when using one of my adapters on a HAS supergun, I have implemented a special HAS mode that can be enabled at startup, which disables the button remapping and rapid fire functionality of the adapter, leaving those functions to the HAS. The buttonmap and rapid fire settings will be set to default when HAS mode is enabled, but previous button remapping and rapid fire settings will return once HAS mode is disabled again.
  
   **To enable/disable HAS mode, simply hold the A button while powering the adapter on.**
   
