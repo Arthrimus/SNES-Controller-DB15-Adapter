@@ -11,23 +11,6 @@ The upload the .ino file to an Arduino Uno or similar compatible device and conn
   These values are hard coded and cannot be easily changed. This is because the code uses direct port maniplulation to set the button outputs to open drain when not pressed. This is a safety feature.
 
 **Button Outputs**
-  - UP    = 1
-  - SELECT = 2
-  - DOWN  = 4
-  - LEFT  = 5
-  - RIGHT = 6
-  - X     = 7
-  - Y     = 8
-  - L     = 9
-  - A     = 10
-  - START = 11  
-  - B     = 13
-  - R     = 12
-
-**SNES Pins**
- - CLOCK = 15
- - LATCH = 18
- - DATA = 19
 
 | Arduino | ATmega | DSUB15 | Button |
 |---------|--------|--------|--------|
@@ -44,6 +27,10 @@ The upload the .ino file to an Arduino Uno or similar compatible device and conn
 |11	|PB3	|11	|Start
 |2	|PD2	|3	|Select
 
+**SNES Pins**
+ - CLOCK = 15
+ - LATCH = 18
+ - DATA = 19
 
 # BUTTON REMAPPING AND AUTOFIRE
 
