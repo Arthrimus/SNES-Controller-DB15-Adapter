@@ -42,7 +42,9 @@ Once in remapping mode press each button the corresponding number of times to ac
  - A = 4 presses
  - B = 5 presses
  - R = 6 presses
- - N/A = 7 presses
+ - START = 7 presses  
+ - SELECT = 8 presses  
+ - N/A = 9 presses
  
  In the code folder there is another sketch labaled "SNES_Controller_Adapter_Remap_Autofire.ino" This is an experemental firmware that has the same button remapping system as the above version, but also adds auto fire capability as well. 
  
@@ -68,6 +70,16 @@ As a stopgap solution I have implemented the "Brook Fix". When the Brook Fix is 
  - To turn the Brook Fix off press and hold any 6 buttons (excluding select and d-pad) + START for 3 seconds.
  
  The Brook Fix setting is saved in the EEPROM so you don't have to set it every time you use it.
+ 
+ # HAS Mode #
+ 
+ The HAS (Home Arcade System) supergun already has built in button remapping and rapid fire functionality. It is programmed through the same process as these adapters, so to eleminate conflicts when using one of my adapters on a HAS supergun, I have implemented a special HAS mode that can be enabled at startup, which disables the button remapping and rapid fire functionality of the adapter, leaving those functions to the HAS. 
+ 
+  **To enable/disable HAS mode, simply hold the A button while powering the adapter on.**
+  
+  When HAS mode is disabled, the status LED will blink rapidly for 1 second during power up. When HAS mode is enabled, the status LED will light up solid for 1 second during power up. 
+  
+  Has mode settings will be saved in the EEPROM and will persist after power cycles. 
 
 # Custom PCB Info.
 
