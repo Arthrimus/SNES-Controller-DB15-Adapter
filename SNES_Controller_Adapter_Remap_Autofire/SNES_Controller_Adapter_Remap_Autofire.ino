@@ -89,7 +89,7 @@ int buttons[12];
 void setup(){
   setupPins();
 HASmode = EEPROM.read(17);
-if (HASmode != 0 || HASmode != 1){
+if (HASmode != 0 && HASmode != 1){
   HASmode = 0;
   EEPROM.write(17,HASmode);
 }
